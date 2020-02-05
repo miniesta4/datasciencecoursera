@@ -10,7 +10,7 @@ server <- function(input, output) {
    )
    
    output$anno <- renderUI(
-     selectInput("anno", "Select Date to view top ten countries", 
+     selectInput("anno", "Select Date to be shown ranking by country", 
                  choices = fechas)
    )
    

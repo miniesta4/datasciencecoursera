@@ -1,0 +1,38 @@
+---
+title: "El pueblo"
+author: "miniesta4"
+date: "January 20, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(leaflet)
+```
+
+## Map of Navarredondilla
+
+This is the map of a very small village called Navarredondilla, 
+located in the Alberche Valley, province of Ávila, Spain.  
+The icon is the village's coat of arms. Beautiful in my opinion.  
+The link goes to the web site of a weather station located at the center of village.   
+Today is quite chilly up there.   
+It is not bad for such a small village (200 inhabitants) to have this two things.  
+I hope you like it.
+
+```{r nav, echo=FALSE}
+navIcon <- makeIcon(
+  iconUrl = "/home/miniesta4/Pictures/Navarredondilla.JPG", 
+  iconWidth = 50, iconHeight = 50,
+  iconAnchorX = 50, iconAnchorY = 50
+)
+
+navSite <- "<a href='http://www.navarredondilla.info'>El tiempo en Navarredondilla</a>"
+
+
+df <- data.frame(lat = 40.455, lng = -4.82)
+df %>% leaflet() %>%
+  addTiles() %>%
+  addMarkers(icon = navIcon, popup = navSite)
+```
+

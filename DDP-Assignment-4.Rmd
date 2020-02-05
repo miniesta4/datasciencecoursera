@@ -1,0 +1,39 @@
+---
+title: "Foreign-born residents in the city of Madrid"
+author: "miniesta4"
+date: "February 5, 2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+## Data set
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Exploratory data analysis
+
+```{r d}
+fic <- "./MadPoblacion/Data/d.rds"
+d <- readRDS(fic)
+dim(d)
+d[1:5, 1:5]
+```
+
+## Source code repository
+
+The source code for the application can be found in the github repository:
+https://github.com/miniesta4/datasciencecoursera
+under the directory "MadPoblacion".
+
+

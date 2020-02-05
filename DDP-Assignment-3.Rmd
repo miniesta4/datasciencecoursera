@@ -1,0 +1,29 @@
+---
+title: 'DDP: Assignment 3'
+author: "miniesta4"
+date: "January 23, 2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+library(plotly)
+```
+
+## US economic time series
+
+```{r economics}
+
+ec <- economics
+ec$unemp_rate <- round(100 * (ec$unemploy / ec$pop), 2)
+
+y <- list(title = "Rate - Weeks")
+
+plot_ly(ec, x = ~date, y = ~psavert, type = "scatter", mode = "lines", name = "Personal savings rate") %>%
+  add_trace(y = ~uempmed, name = "Median duration of unemployment (weeks)") %>%
+  add_trace(y = ~unemp_rate, name = "Unemployment rate") %>%
+   layout(legend = list(x = 0.1, y = 0.95), yaxis = y)
+```
+
+## Thanks
