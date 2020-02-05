@@ -5,7 +5,10 @@ library(dplyr)
 library(ggplot2)
 library(forcats)
 
-d <-read_csv2("./Data/estadistica.csv", na = c("-", ""), skip = 1)
+# d <-read_csv2("./Data/estadistica.csv", na = c("-", ""), skip = 1)
+# saveRDS(d, "./Data/d.rds")
+
+d <- readRDS("./Data/d.rds")
 
 d1 <- pivot_longer(d, cols = -c(Pais, Area) , names_to = "Fecha", 
                    values_to = "Num_habit")

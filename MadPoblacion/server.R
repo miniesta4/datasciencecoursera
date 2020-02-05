@@ -47,6 +47,10 @@ server <- function(input, output) {
      dfh <- dfh[, c("Rk", "Country", "Residents")]
    })
 
+   output$fecha <- renderText({
+     paste("Selected date: ", input$anno)
+   })
+   
    output$rk <- renderTable({
      t()
    })
