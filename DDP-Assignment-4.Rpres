@@ -1,0 +1,58 @@
+DDP-Assignment-4: Foreign-born residents in the city of Madrid
+========================================================
+author: Miguel A. Iniesta
+date: February 5, 2020
+autosize: true
+
+Introduction
+========================================================
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyr)
+```
+
+Time series on foreign population are periodically published by the Madrid City
+Council in its data bank.
+
+<http://www-2.munimadrid.es/CSE6/jsps/menuBancoDatos.jsp>
+
+A small application have been built to show interactively the evolution of 
+the number of people by geographic area and country of origin.
+
+The application can be found at:
+
+<https://miniesta4.shinyapps.io/madpoblacion/>
+
+Exploratory data analysis
+========================================================
+
+The dataset is provided as a csv file. The variable "Fecha" is in columns. 
+Some values of the variable "Pais" are not countries itself. There is also a row
+for not foreign born residents.
+
+```{r d}
+fic <- "./MadPoblacion/Data/d.rds"
+d <- readRDS(fic)
+str(d, give.attr = FALSE)
+```
+
+Data transformation
+========================================================
+
+Some transformations have been made in order to obtain a tidy dataset.
+
+```{r d1, echo=FALSE}
+d1 <- pivot_longer(d, cols = -c(Pais, Area) , names_to = "Fecha",
+                   values_to = "Num_habit")
+d2 <- na.omit(d1)
+d2$fecha2 <- as.Date(d2$Fecha, format = "%d/%m/%y")
+str(d2)
+```
+
+Source code repository
+========================================================
+
+The source code for the application can be found following the next link:
+
+[Repository](https://github.com/miniesta4/datasciencecoursera/tree/master/MadPoblacion)
