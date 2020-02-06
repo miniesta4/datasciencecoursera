@@ -11,29 +11,51 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Introduction
 
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Time series on foreign population are periodically published by the Madrid City
+Council in its data bank.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+<http://www-2.munimadrid.es/CSE6/jsps/menuBancoDatos.jsp>
 
-## Data set
+An small application have been build to show interactively the evolution of 
+the number of people by geographic area and country of origin.
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+The application can be found at:
+
+<>
 
 ## Exploratory data analysis
 
+The dataset is a csv file. The variable "Fecha" is in columns and some values
+of the variable "Pais" are not countries. Geographic area has been added.
+
 ```{r d}
-fic <- "./MadPoblacion/Data/d.rds"
-d <- readRDS(fic)
-dim(d)
-d[1:5, 1:5]
+# fic <- "./MadPoblacion/Data/d.rds"
+# d <- readRDS(fic)
+# dim(d)
+# d[1:5, 1:5]
 ```
+
+## Data transformation
+
+Some transformations and removals of rows have been made in order to obtain a
+tidy data set.
+
+```{r d1}
+# d1 <- pivot_longer(d, cols = -c(Pais, Area) , names_to = "Fecha", 
+#                    values_to = "Num_habit")
+# d2 <- d1[complete.cases(d1), ]
+# d2$fecha2 <- as.Date(d2$Fecha, format = "%d/%m/%y")
+# d2[1:5, ]
+```
+
 
 ## Source code repository
 
-The source code for the application can be found in the github repository:
-https://github.com/miniesta4/datasciencecoursera
-under the directory "MadPoblacion".
+The source code for the application can be found in the following link:
+
+[Repository](https://github.com/miniesta4/datasciencecoursera/tree/develop/MadPoblacion)
+
+
+
 
 
