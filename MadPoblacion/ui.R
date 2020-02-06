@@ -11,14 +11,15 @@ shinyUI(
         helpText(
           "Note: The data source only includes countries whose \
           number of residents exceeds a certain minimum. The first \
-          plot is always shown as a reference. The second is updated."
+          plot is always shown as a reference. The second is updated on area \
+          selection."
         ), 
         br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
         br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
         br(), br(), br(), br(), br(), br(), br(), br(), br(), br(), br(),
         uiOutput("anno"),
-        helpText("Note: The time series has a period of six months \
-                 so the frequency has a value of 2 per year.")
+        helpText("Note: Ranking includes top ten countries by number of \
+                 residents on selected date.")
       ),
       
       mainPanel(

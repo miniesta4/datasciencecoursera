@@ -7,6 +7,7 @@ output: ioslides_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(tidyr)
 ```
 
 ## Introduction
@@ -16,44 +17,45 @@ Council in its data bank.
 
 <http://www-2.munimadrid.es/CSE6/jsps/menuBancoDatos.jsp>
 
-An small application have been build to show interactively the evolution of 
+A small application have been built to show interactively the evolution of 
 the number of people by geographic area and country of origin.
 
 The application can be found at:
 
-<>
+<https://miniesta4.shinyapps.io/madpoblacion/>
 
 ## Exploratory data analysis
 
-The dataset is a csv file. The variable "Fecha" is in columns and some values
-of the variable "Pais" are not countries. Geographic area has been added.
+The dataset is provided as a csv file. The variable "Fecha" is in columns. 
+Some values of the variable "Pais" are not countries itself. There is also a row
+for not foreign born residents.
 
 ```{r d}
-# fic <- "./MadPoblacion/Data/d.rds"
-# d <- readRDS(fic)
-# dim(d)
-# d[1:5, 1:5]
+fic <- "./MadPoblacion/Data/d.rds"
+d <- readRDS(fic)
+# str(d, give.attr = FALSE)
+names(d)
+d[1:5, 1:5]
 ```
 
 ## Data transformation
 
-Some transformations and removals of rows have been made in order to obtain a
-tidy data set.
+Some transformations have been made in order to obtain a tidy dataset.
 
 ```{r d1}
-# d1 <- pivot_longer(d, cols = -c(Pais, Area) , names_to = "Fecha", 
-#                    values_to = "Num_habit")
-# d2 <- d1[complete.cases(d1), ]
-# d2$fecha2 <- as.Date(d2$Fecha, format = "%d/%m/%y")
-# d2[1:5, ]
+d1 <- pivot_longer(d, cols = -c(Pais, Area) , names_to = "Fecha",
+                   values_to = "Num_habit")
+d2 <- d1[complete.cases(d1), ]
+d2$fecha2 <- as.Date(d2$Fecha, format = "%d/%m/%y")
+d2[1:5, ]
 ```
 
 
 ## Source code repository
 
-The source code for the application can be found in the following link:
+The source code for the application can be found following the next link:
 
-[Repository](https://github.com/miniesta4/datasciencecoursera/tree/develop/MadPoblacion)
+[Repository](https://github.com/miniesta4/datasciencecoursera/tree/master/MadPoblacion)
 
 
 
