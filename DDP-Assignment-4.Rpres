@@ -4,6 +4,13 @@ author: Miguel A. Iniesta
 date: February 5, 2020
 autosize: true
 
+<style>
+.small-code pre code {
+  font-size: 1em;
+}
+</style>
+
+
 Introduction
 ========================================================
 
@@ -26,6 +33,7 @@ The application can be found at:
 
 Exploratory data analysis
 ========================================================
+class: small-code
 
 The dataset is provided as a csv file. The variable "Fecha" is in columns. 
 Some values of the variable "Pais" are not countries itself. There is also a row
@@ -39,6 +47,7 @@ str(d, give.attr = FALSE)
 
 Data transformation
 ========================================================
+class: small-code
 
 Some transformations have been made in order to obtain a tidy dataset.
 

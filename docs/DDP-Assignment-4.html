@@ -787,6 +787,11 @@ hljs.initHighlightingOnLoad();
 <h1>DDP-Assignment-4: Foreign-born residents in the city of Madrid</h1><p>Miguel A. Iniesta<br/>February 5, 2020</p>
 
 <div class="slideContent" >
+<style>
+.small-code pre code {
+  font-size: 1em;
+}
+</style>
 
 </div>
 
@@ -811,7 +816,7 @@ the number of people by geographic area and country of origin.</p>
 </section>
 <section data-transition="linear" data-transition-speed="default">
 <h3>Exploratory data analysis</h3>
-<div class="slideContent" >
+<div class="slideContent small-code" >
 <p>The dataset is provided as a csv file. The variable &ldquo;Fecha&rdquo; is in columns. 
 Some values of the variable &ldquo;Pais&rdquo; are not countries itself. There is also a row
 for not foreign born residents.</p>
@@ -844,7 +849,7 @@ for not foreign born residents.</p>
 </section>
 <section data-transition="linear" data-transition-speed="default">
 <h3>Data transformation</h3>
-<div class="slideContent" >
+<div class="slideContent small-code" >
 <p>Some transformations have been made in order to obtain a tidy dataset.</p>
 
 <pre><code class="r">d1 &lt;- pivot_longer(d, cols = -c(Pais, Area) , names_to = &quot;Fecha&quot;,
