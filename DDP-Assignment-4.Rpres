@@ -42,7 +42,7 @@ Data transformation
 
 Some transformations have been made in order to obtain a tidy dataset.
 
-```{r d1, echo=FALSE}
+```{r d1, echo=TRUE}
 d1 <- pivot_longer(d, cols = -c(Pais, Area) , names_to = "Fecha",
                    values_to = "Num_habit")
 d2 <- na.omit(d1)

@@ -847,6 +847,13 @@ for not foreign born residents.</p>
 <div class="slideContent" >
 <p>Some transformations have been made in order to obtain a tidy dataset.</p>
 
+<pre><code class="r">d1 &lt;- pivot_longer(d, cols = -c(Pais, Area) , names_to = &quot;Fecha&quot;,
+                   values_to = &quot;Num_habit&quot;)
+d2 &lt;- na.omit(d1)
+d2$fecha2 &lt;- as.Date(d2$Fecha, format = &quot;%d/%m/%y&quot;)
+str(d2)
+</code></pre>
+
 <pre><code>Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:   1133 obs. of  5 variables:
  $ Pais     : chr  &quot;Alemania&quot; &quot;Alemania&quot; &quot;Alemania&quot; &quot;Alemania&quot; ...
  $ Area     : chr  &quot;Western Europe&quot; &quot;Western Europe&quot; &quot;Western Europe&quot; &quot;Western Europe&quot; ...
