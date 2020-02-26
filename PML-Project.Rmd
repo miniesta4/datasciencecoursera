@@ -1,0 +1,82 @@
+---
+title: "PMC-Assignment"
+author: "miniesta4"
+date: "February 26, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(caret)
+
+library(parallel)
+library(doParallel)
+cluster <- makeCluster(detectCores() - 1) # convention to leave 1 core for OS
+registerDoParallel(cluster)
+
+set.seed(20200226)
+```
+
+## Question
+
+## Input data
+
+```{r in}
+training <- read.csv("./pml-training.csv")
+testing <- read.csv("./pml-testing.csv")
+
+training_1 <- training[ , -c(1:7)]
+
+pcj_nas <- sapply(training_1, function(x) mean(is.na(x)))
+quantile(pcj_nas)
+table(pcj_nas < 0.1)
+index_no_nas <- which(pcj_nas < 0.1)
+training_1 <- training_1[ , index_no_nas]
+
+nzvp <- nearZeroVar(training_1)
+training_2 <- training_1[ , -nzvp]
+dim(training_2)
+table(training$classe)
+
+testing_1 <- testing[ , -c(1:7)]
+testing_1 <- testing_1[ , index_no_nas]
+testing_2 <- testing_1[ , -nzvp]
+dim(testing_2)
+
+```
+
+## Features
+
+```{r pre, echo=FALSE}
+# Correlated predictors
+M <- abs(cor(training_2[ , -53]))
+diag(M) <- 0
+t <- which(M > 0.8, arr.ind=T)
+index_hc <- t[t[, 1] > t[, 2], 1]
+
+training_3 <- training_2[ , -index_hc]
+testing_3 <- testing_2[ , -index_hc]
+
+```
+
+## Algorithm
+
+```{r alg, echo=FALSE}
+tree.fit <- train(classe ~ ., method = "rpart", data = training_3)
+confusionMatrix(predict(tree.fit), training$classe)
+plot(tree.fit$finalModel)
+
+tree.fit.gbm <- train(classe ~ ., method = "gbm", data = training_3, verbose = FALSE)
+confusionMatrix(tree.fit.gbm)
+plot(tree.fit.gbm$finalModel)
+
+```
+
+## Parameters
+
+## Evaluation
+
+```{r eval, echo=FALSE}
+pred.testing <- predict(tree.fit.gbm, newdata = testing_3)
+
+```
