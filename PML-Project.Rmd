@@ -22,85 +22,122 @@ set.seed(20200226)
 
 ## Introduction
 
-People regularly quantify how much of a particular activity they do, but they 
-rarely quantify how well they do it. The goal of this project will be to predict
-the manner in which six participants did the exercise named curl biceps using
-data from accelerometers on the belt, forearm, arm, and dumbell.
+People regularly quantify how much of a particular activity is done, but they 
+rarely quantify how well they do it. The goal of this project is to predict
+the manner in which six participants do the exercise named "Unilateral Dumbbell 
+Biceps Curl" using data from accelerometers on the belt, forearm, arm, and 
+dumbell.
+
+Five different classes have been set. Only the A class is the correct manner:
+* Class A: Exactly according to the specification
+* Class B: Throwing the elbows to the front
+* Class C: Lifting the dumbbell only halfway
+* Class D: Lowering the dumbbell only halfway
+* Class E: Throwing the hips to the front
 
 The data for this project come from this source: http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har
 
-## Exploratory data analysis
+## Exploratory data analysis and predictors selection
 
-Dimension of the data set provided:
+Dimensions of the data set provided:
 
 ```{r ds}
-ds <- read.csv("./fics/pml-training.csv")
-# testing <- read.csv("./pml-testing.csv")
+ds <- read.csv("./fics/pml-training.csv", na.strings = c("", "NA", "#DIV/0!"), 
+               stringsAsFactors = FALSE)
 dim(ds)
 
 ```
 
-Partition of data set into training and testing for cross validation.
+Partition of the data set into training and testing is done in order to estimate
+the test error rate under the validation set approach.
 
-```{r tr}
+```{r in}
 inTrain <- createDataPartition(ds$classe, p = 0.75, list = FALSE)
 training <- ds[inTrain , ]
 testing <- ds[-inTrain, ]
 dim(training)
-dim(testing)
+table(training$classe)
 ```
 
-```{r nas}
-pcj_nas <- sapply(training_1, function(x) mean(is.na(x)))
+First seven columns corresponds to variables which are not related to the way the
+exercise is performed. They are removed.
+
+```{r tr}
+training[1:5, 1:7]
+training <- training[ , -c(1:7)]
+```
+
+Variables with a high proportion of NA's are removed.
+
+```{r pcj}
+pcj_nas <- sapply(training, function(x) mean(is.na(x)))
 quantile(pcj_nas)
 table(pcj_nas < 0.1)
 index_no_nas <- which(pcj_nas < 0.1)
-training_1 <- training_1[ , index_no_nas]
+training <- training[index_no_nas]
+```
 
-nzvp <- nearZeroVar(training_1)
-training_2 <- training_1[ , -nzvp]
-dim(training_2)
-table(training$classe)
+Variables with near zero variability are also removed.
 
-testing_1 <- testing[ , -c(1:7)]
-testing_1 <- testing_1[ , index_no_nas]
-testing_2 <- testing_1[ , -nzvp]
-dim(testing_2)
+```{r nzvp}
+nzvp <- nearZeroVar(training)
+training <- training[-nzvp]
+
+# testing <- testing[ , -c(1:7)]
+# testing <- testing_ , index_no_nas]
+# testing <- testing[ , -nzvp]
+# dim(testing_2)
 
 ```
 
-## Features selection
+Final variables in the training set:
+```{r names}
+dim(training)
+names(training)
+table(training$classe)
+```
 
-```{r pre, echo=FALSE}
-# Correlated predictors
-M <- abs(cor(training_2[ , -53]))
+The correlation matrix shows some very high values, situation known as 
+"Collinearity", which can pose problems in the regression context.
+
+```{r M}
+M <- abs(cor(training[-c(ncol(training))]))
 diag(M) <- 0
-t <- which(M > 0.8, arr.ind=T)
-index_hc <- t[t[, 1] > t[, 2], 1]
-
-training_3 <- training_2[ , -index_hc]
-testing_3 <- testing_2[ , -index_hc]
+t <- which(M > 0.9, arr.ind=T)
+# index_hc <- t[t[, 1] > t[, 2], 1]
 
 ```
 
 ## Model selection
 
-```{r alg, echo=FALSE}
-tree.fit <- train(classe ~ ., method = "rpart", data = training_3)
-confusionMatrix(predict(tree.fit), training$classe)
-plot(tree.fit$finalModel)
+Tree-based methods will be used for their simplicity and easy interpretation. 
+Collinearity advises against the use of regression models.
 
+### Classification tree
+
+A classification tree predicts that each observation belongs to the most commonly
+occurring class of training observations in the region to which it belongs.
+
+```{r tree, echo=FALSE}
 tree.fit.gbm <- train(classe ~ ., method = "gbm", data = training_3, verbose = FALSE)
 confusionMatrix(tree.fit.gbm)
 plot(tree.fit.gbm$finalModel)
 
 ```
 
-## Parameters
+### Boosting
+
+```{r gbm, echo=FALSE}
+tree.fit.gbm <- train(classe ~ ., method = "gbm", data = training_3, verbose = FALSE)
+confusionMatrix(tree.fit.gbm)
+plot(tree.fit.gbm$finalModel)
+
+```
+
 
 ## Evaluation
 
-```{r eval, echo=FALSE}
+```{r ev, echo=FALSE}
 pred.testing <- predict(tree.fit.gbm, newdata = testing_3)
 
 ```
