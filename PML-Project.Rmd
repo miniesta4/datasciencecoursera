@@ -1,32 +1,56 @@
 ---
-title: "PMC-Assignment"
+title: "PML: Project"
 author: "miniesta4"
 date: "February 26, 2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(caret)
 
+knitr::opts_chunk$set(echo = TRUE)
+
+library(caret)
 library(parallel)
 library(doParallel)
+
 cluster <- makeCluster(detectCores() - 1) # convention to leave 1 core for OS
 registerDoParallel(cluster)
 
 set.seed(20200226)
+
 ```
 
-## Question
+## Introduction
 
-## Input data
+People regularly quantify how much of a particular activity they do, but they 
+rarely quantify how well they do it. The goal of this project will be to predict
+the manner in which six participants did the exercise named curl biceps using
+data from accelerometers on the belt, forearm, arm, and dumbell.
 
-```{r in}
-training <- read.csv("./pml-training.csv")
-testing <- read.csv("./pml-testing.csv")
+The data for this project come from this source: http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har
 
-training_1 <- training[ , -c(1:7)]
+## Exploratory data analysis
 
+Dimension of the data set provided:
+
+```{r ds}
+ds <- read.csv("./fics/pml-training.csv")
+# testing <- read.csv("./pml-testing.csv")
+dim(ds)
+
+```
+
+Partition of data set into training and testing for cross validation.
+
+```{r tr}
+inTrain <- createDataPartition(ds$classe, p = 0.75, list = FALSE)
+training <- ds[inTrain , ]
+testing <- ds[-inTrain, ]
+dim(training)
+dim(testing)
+```
+
+```{r nas}
 pcj_nas <- sapply(training_1, function(x) mean(is.na(x)))
 quantile(pcj_nas)
 table(pcj_nas < 0.1)
@@ -45,7 +69,7 @@ dim(testing_2)
 
 ```
 
-## Features
+## Features selection
 
 ```{r pre, echo=FALSE}
 # Correlated predictors
@@ -59,7 +83,7 @@ testing_3 <- testing_2[ , -index_hc]
 
 ```
 
-## Algorithm
+## Model selection
 
 ```{r alg, echo=FALSE}
 tree.fit <- train(classe ~ ., method = "rpart", data = training_3)
@@ -80,3 +104,8 @@ plot(tree.fit.gbm$finalModel)
 pred.testing <- predict(tree.fit.gbm, newdata = testing_3)
 
 ```
+
+## Source code
+
+Link to the source code repository:  
+https://github.com/miniesta4/datasciencecoursera
