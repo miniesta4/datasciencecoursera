@@ -1,11 +1,12 @@
 ---
-title: "PML: Project"
+title: "PML Project: Qualitative Activity Recognition"
 author: "miniesta4"
 date: "February 26, 2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
+# v202002281316
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -13,8 +14,8 @@ library(caret)
 library(parallel)
 library(doParallel)
 
-cluster <- makeCluster(detectCores() - 1) # convention to leave 1 core for OS
-registerDoParallel(cluster)
+cl <- makeCluster(detectCores() - 1) # convention to leave 1 core for OS
+registerDoParallel(cl)
 
 set.seed(20200226)
 
@@ -25,8 +26,7 @@ set.seed(20200226)
 People regularly quantify how much of a particular activity is done, but they 
 rarely quantify how well they do it. The goal of this project is to predict
 the manner in which six participants do the exercise named "Unilateral Dumbbell 
-Biceps Curl" using data from accelerometers on the belt, forearm, arm, and 
-dumbell.
+Biceps Curl" using data from accelerometers on the belt, forearm, arm and dumbbell.
 
 Five different classes have been set. Only the A class is the correct manner:
 * Class A: Exactly according to the specification
@@ -53,7 +53,7 @@ the test error rate under the validation set approach.
 
 ```{r in}
 inTrain <- createDataPartition(ds$classe, p = 0.75, list = FALSE)
-training <- ds[inTrain , ]
+training <- ds[inTrain, ]
 testing <- ds[-inTrain, ]
 dim(training)
 table(training$classe)
@@ -64,30 +64,25 @@ exercise is performed. They are removed.
 
 ```{r tr}
 training[1:5, 1:7]
-training <- training[ , -c(1:7)]
+training <- training[-c(1:7)]
 ```
 
 Variables with a high proportion of NA's are removed.
 
 ```{r pcj}
 pcj_nas <- sapply(training, function(x) mean(is.na(x)))
-quantile(pcj_nas)
+summary(pcj_nas)
 table(pcj_nas < 0.1)
+hist(pcj_nas)
 index_no_nas <- which(pcj_nas < 0.1)
 training <- training[index_no_nas]
 ```
 
-Variables with near zero variability are also removed.
+There are not variables with near zero variability.
 
-```{r nzvp}
-nzvp <- nearZeroVar(training)
-training <- training[-nzvp]
-
-# testing <- testing[ , -c(1:7)]
-# testing <- testing_ , index_no_nas]
-# testing <- testing[ , -nzvp]
-# dim(testing_2)
-
+```{r nzvp, cache=TRUE}
+nzvp <- nearZeroVar(training, saveMetrics = TRUE)
+nzvp[nzvp$nzv,]
 ```
 
 Final variables in the training set:
@@ -97,21 +92,22 @@ names(training)
 table(training$classe)
 ```
 
-The correlation matrix shows some very high values, situation known as 
-"Collinearity", which can pose problems in the regression context.
+The correlation matrix shows that some variables are highly correlated. This 
+situation is known as "Collinearity". It can pose problems in the regression context.
 
 ```{r M}
-M <- abs(cor(training[-c(ncol(training))]))
+M <- abs(cor(subset(training, select = -classe)))
 diag(M) <- 0
+hist(M, main = "Training: Correlation among vars selected")
 t <- which(M > 0.9, arr.ind=T)
 # index_hc <- t[t[, 1] > t[, 2], 1]
-
 ```
 
 ## Model selection
 
-Tree-based methods will be used for their simplicity and easy interpretation. 
 Collinearity advises against the use of regression models.
+Tree-based methods are simple and useful for interpretation.
+A tree-based method named CART will be used.
 
 ### Classification tree
 
@@ -119,28 +115,45 @@ A classification tree predicts that each observation belongs to the most commonl
 occurring class of training observations in the region to which it belongs.
 
 ```{r tree, echo=FALSE}
-tree.fit.gbm <- train(classe ~ ., method = "gbm", data = training_3, verbose = FALSE)
-confusionMatrix(tree.fit.gbm)
-plot(tree.fit.gbm$finalModel)
+tree.fit <- train(classe ~ ., method = "rpart", data = training)
+
+plot(tree.fit$finalModel)
+text(tree.fit$finalModel)
+```
+
+Evaluation on the test set.
+
+```{r tree.fit.test, echo=FALSE}
+tree.fit.test <- predict(tree.fit, newdata = testing)
+confusionMatrix(tree.fit.test, factor(testing$classe))
 
 ```
 
 ### Boosting
 
+Boosting is an approach for improving prediction results from decision trees.
+It is based on growing trees sequentially, using information from previously grown
+trees and then combining all of the trees in order to create a single predictive
+model.
+
 ```{r gbm, echo=FALSE}
-tree.fit.gbm <- train(classe ~ ., method = "gbm", data = training_3, verbose = FALSE)
-confusionMatrix(tree.fit.gbm)
-plot(tree.fit.gbm$finalModel)
+# gbm.fit <- train(classe ~ ., method = "gbm", data = training, verbose = FALSE)
 
 ```
 
+Evaluation on the test set.
 
-## Evaluation
+```{r tree.fit.test, echo=FALSE}
+gbm.fit.test <- predict(gbm.fit, newdata = testing)
+confusionMatrix(gbm.fit.test, factor(testing$classe))
 
-```{r ev, echo=FALSE}
-pred.testing <- predict(tree.fit.gbm, newdata = testing_3)
-
+stopCluster(cl)
 ```
+
+
+## Conclusion
+
+
 
 ## Source code
 
