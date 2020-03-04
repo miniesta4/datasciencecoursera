@@ -6,19 +6,19 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-# v202002281316
+# v202003041749
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 library(caret)
 library(parallel)
 library(doParallel)
+library(rattle)
 
-cl <- makeCluster(detectCores() - 1) # convention to leave 1 core for OS
+cl <- makeCluster(detectCores() - 1)
 registerDoParallel(cl)
 
 set.seed(20200226)
-
 ```
 
 ## Introduction
@@ -29,17 +29,19 @@ the manner in which six participants do the exercise named "Unilateral Dumbbell
 Biceps Curl" using data from accelerometers on the belt, forearm, arm and dumbbell.
 
 Five different classes have been set. Only the A class is the correct manner:
+
 * Class A: Exactly according to the specification
 * Class B: Throwing the elbows to the front
 * Class C: Lifting the dumbbell only halfway
 * Class D: Lowering the dumbbell only halfway
 * Class E: Throwing the hips to the front
 
-The data for this project come from this source: http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har
+The data for this project come from this source:  
+http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har
 
-## Exploratory data analysis and predictors selection
+## Exploratory data analysis and pre-processing
 
-Dimensions of the data set provided:
+Dimensions of the provided data set:
 
 ```{r ds}
 ds <- read.csv("./fics/pml-training.csv", na.strings = c("", "NA", "#DIV/0!"), 
@@ -48,8 +50,10 @@ dim(ds)
 
 ```
 
-Partition of the data set into training and testing is done in order to estimate
-the test error rate under the validation set approach.
+The data set is splitted into training and test set in order to estimate the 
+test error rate under the validation set approach.
+
+Traininng data set:
 
 ```{r in}
 inTrain <- createDataPartition(ds$classe, p = 0.75, list = FALSE)
@@ -62,7 +66,7 @@ table(training$classe)
 First seven columns corresponds to variables which are not related to the way the
 exercise is performed. They are removed.
 
-```{r tr}
+```{r training}
 training[1:5, 1:7]
 training <- training[-c(1:7)]
 ```
@@ -80,7 +84,7 @@ training <- training[index_no_nas]
 
 There are not variables with near zero variability.
 
-```{r nzvp, cache=TRUE}
+```{r nzvp}
 nzvp <- nearZeroVar(training, saveMetrics = TRUE)
 nzvp[nzvp$nzv,]
 ```
@@ -99,9 +103,15 @@ situation is known as "Collinearity". It can pose problems in the regression con
 M <- abs(cor(subset(training, select = -classe)))
 diag(M) <- 0
 hist(M, main = "Training: Correlation among vars selected")
-t <- which(M > 0.9, arr.ind=T)
-# index_hc <- t[t[, 1] > t[, 2], 1]
 ```
+
+Variables with correlation > 0.9:
+
+```{r t}
+t <- which(M > 0.9, arr.ind = T)
+t
+```
+
 
 ## Model selection
 
@@ -114,20 +124,25 @@ A tree-based method named CART will be used.
 A classification tree predicts that each observation belongs to the most commonly
 occurring class of training observations in the region to which it belongs.
 
-```{r tree, echo=FALSE}
+```{r tree, cache=TRUE}
 tree.fit <- train(classe ~ ., method = "rpart", data = training)
+tree.fit
+```
 
-plot(tree.fit$finalModel)
-text(tree.fit$finalModel)
+Final model:
+
+```{r plot}
+fancyRpartPlot(tree.fit$finalModel)
 ```
 
 Evaluation on the test set.
 
-```{r tree.fit.test, echo=FALSE}
+```{r tree.fit.test}
 tree.fit.test <- predict(tree.fit, newdata = testing)
 confusionMatrix(tree.fit.test, factor(testing$classe))
-
 ```
+
+Accuracy on the test set is very close to the expected accuracy.
 
 ### Boosting
 
@@ -136,23 +151,24 @@ It is based on growing trees sequentially, using information from previously gro
 trees and then combining all of the trees in order to create a single predictive
 model.
 
-```{r gbm, echo=FALSE}
-# gbm.fit <- train(classe ~ ., method = "gbm", data = training, verbose = FALSE)
-
+```{r gbm , cache=TRUE}
+gbm.fit <- train(classe ~ ., method = "gbm", data = training, verbose = FALSE)
+gbm.fit
 ```
 
 Evaluation on the test set.
 
-```{r tree.fit.test, echo=FALSE}
+```{r gbm.fit.test}
 gbm.fit.test <- predict(gbm.fit, newdata = testing)
 confusionMatrix(gbm.fit.test, factor(testing$classe))
 
 stopCluster(cl)
 ```
 
-
 ## Conclusion
 
+Accuracy has vastly improved from around 0.50 to 0.96 with the introduction of 
+Boosting.
 
 
 ## Source code
